@@ -56,9 +56,9 @@ def insert(data_src, project, source_type: str = 'file'):
     '''
     doc_db = DocStore(table_name=project,
                       embedding_func=encoder)
-    docs, token_count = load_data(data_src=data_src, source_type=source_type)
+    docs = load_data(data_src=data_src, source_type=source_type)
     num = doc_db.insert(docs)
-    return num, token_count
+    return num
 
 
 def drop(project):
@@ -85,13 +85,14 @@ def check(project):
     except Exception as e:
         logger.error('Failed to check doc stores:\n%s', e)
         raise RuntimeError from e
-    # Check memory
+    
     try:
         memory_check = MemoryStore.check(project)
     except Exception as e:
         logger.error('Failed to clean memory for the project:\n%s', e)
         raise RuntimeError from e
-    return {'store': doc_check, 'memory': memory_check}
+    
+    return {'store': doc_check, 'memory': memory_check}  # Remove [0]
 
 def count(project):
     '''Count entities.'''

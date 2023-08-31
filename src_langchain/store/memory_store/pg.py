@@ -10,7 +10,7 @@ from config import MEMORYDB_CONFIG  # pylint: disable=C0413
 
 
 CONNECT_STR = MEMORYDB_CONFIG.get(
-    'connect_str', 'postgresql://postgres:postgres@localhost/chat_history')
+    'connect_str', 'postgresql://ramin:lydacious1@localhost:5432/chat_history')
 
 
 class MemoryStore:
@@ -40,32 +40,23 @@ class MemoryStore:
                 self.history_db.add_ai_message(qa['answer'])
 
     def get_history(self):
-        history = self.history_db.messages
+        records = self.history_db.messages
         messages = []
-        for x in history:
-            if isinstance(x, HumanMessage):
-                if len(messages) > 0 and messages[-1][0] is None:
-                    a = messages[-1][-1]
-                    del messages[-1]
-                else:
-                    a = None
-                messages.append((x.content, a))
-            if isinstance(x, AIMessage):
-                if len(messages) > 0 and messages[-1][-1] is None:
-                    q = messages[-1][0]
-                    del messages[-1]
-                else:
-                    q = None
-                messages.append((q, x.content))
+        for record in records:
+            message_data = record[2]  # Assuming 'message' is the third column (index 2)
+            if record[1] == "human":  # Assuming 'type' is the second column (index 1)
+                messages.append((message_data, None))
+            elif record[1] == "ai":   # Assuming 'type' is the second column (index 1)
+                messages.append((None, message_data))
         return messages
+
 
     @staticmethod
     def connect(connect_str: str = CONNECT_STR):
-        import psycopg  # pylint: disable=C0415
-        from psycopg.rows import dict_row  # pylint: disable=C0415
+        import psycopg2  # pylint: disable=C0415
 
-        connection = psycopg.connect(connect_str)
-        cursor = connection.cursor(row_factory=dict_row)
+        connection = psycopg2.connect(connect_str)
+        cursor = connection.cursor()
         return connection, cursor
 
     @staticmethod
@@ -94,4 +85,6 @@ class MemoryStore:
         check = 'SELECT COUNT(*) FROM pg_class WHERE relname = %s;'
         cursor.execute(check, (table_name,))
         record = cursor.fetchall()
-        return bool(record[0]['count'] > 0)
+        # Assuming record is a tuple containing a single tuple with the count value
+        return bool(record[0][0] > 0)
+

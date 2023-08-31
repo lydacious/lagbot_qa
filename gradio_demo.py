@@ -17,9 +17,9 @@ assert (USE_LANGCHAIN and not USE_TOWHEE) or (USE_TOWHEE and not USE_LANGCHAIN),
     'The service should start with either "--langchain" or "--towhee".'
 
 if USE_LANGCHAIN:
-    from src_langchain.operations import chat, insert, check, drop, get_history, clear_history, count  # pylint: disable=C0413
+    from src_langchain.operations import chat, insert, check, drop, get_history, clear_history  # pylint: disable=C0413
 if USE_TOWHEE:
-    from src_towhee.operations import chat, insert, check, drop, get_history, clear_history, count  # pylint: disable=C0413
+    from src_towhee.operations import chat, insert, check, drop, get_history, clear_history  # pylint: disable=C0413
 
 
 def create_session_id():
@@ -52,10 +52,7 @@ def add_project(project, data_url: str = None, data_file: object = None):
 def check_project(project):
     status = check(project)
     if status['store']:
-        counts = count(project)
-        vector_num = counts['vector store']
-        scalar_num = counts['scalar store']
-        return f'Project exists: {vector_num} in vector store, {scalar_num} in scalar store.'
+        return 'Project exists. You can upload more documents or directly start conversation.'
     else:
         return 'Project does not exist. You need to upload the first document before conversation.'
 
@@ -72,7 +69,7 @@ with gr.Blocks() as demo:
         with gr.Column(scale=1):
             gr.Markdown('''## Project''')
             project_name = gr.Textbox(
-                value='akcio_demo',
+                value='testing_qa',
                 label='Project Name',
                 info='The name can contain numbers, letters, and underscores (_).'
             )

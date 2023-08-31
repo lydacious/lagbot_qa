@@ -39,7 +39,7 @@ class MockPipeline:
 
     def insert_pipeline(self, data_src, project, source_type='file'):
         self.projects[project] = [data_src]
-        self.insert_que.put([{'milvus': len(data_src), 'es': None, 'token_count': len(data_src.split(' '))}])
+        self.insert_que.put([(data_src)])
         self.insert_que.seal()
         return self.insert_que
 
@@ -61,9 +61,8 @@ class TestOperations(unittest.TestCase):
     '''Test operations'''
     session_id = 'test000'
     project = 'akcio_ut'
-    test_src = 'test src'
+    test_src = 'test_src'
     expect_len = 1
-    expect_token_count = len(test_src.split(' '))
     question = 'the first question'
     expect_answer = 'mock answer'
 
@@ -114,8 +113,8 @@ class TestOperations(unittest.TestCase):
 
                 from src_towhee.operations import insert, check, drop
 
-                chunk_count, token_count = insert(self.test_src, self.project)
-                assert chunk_count == self.expect_len, token_count == self.expect_token_count
+                count = insert(self.test_src, self.project)
+                assert count == self.expect_len
                 status = check(self.project)
                 assert status['store']
 

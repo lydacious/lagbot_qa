@@ -48,10 +48,7 @@ def insert(data_src, project, source_type: str = 'file'): # pylint: disable=W061
     res = insert_pipeline(data_src, project).to_list()
     num = towhee_pipelines.count_entities(project)['vector store']
     assert len(res) <= num, 'Failed to insert data.'
-    token_count = 0
-    for r in res:
-        token_count += r[0]['token_count']
-    return len(res), token_count
+    return len(res)
 
 
 def drop(project):
@@ -129,9 +126,8 @@ def clear_history(project, session_id):
 #     question1 = 'What is Towhee?'
 #     question2 = 'What does it do?'
 
-#     chunk_count, token_count = insert(data_src=data_src, project=project, source_type='url')
-#     print('\nChunk count:', chunk_count)
-#     print('\nToken count:', token_count)
+#     count = insert(data_src=data_src, project=project, source_type='url')
+#     print('\nCount:', count)
 #     print('\nCheck:', check(project))
 
 #     new_question, answer = chat(project=project, session_id=session_id, question=question0)
