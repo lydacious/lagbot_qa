@@ -1,112 +1,19 @@
-# Akcio: Enhancing LLM-Powered ChatBot with CVP Stack
+# Lagrange Q&A Chatbot
 
-[OSSChat](https://osschat.io) |
-[Documentation](https://github.com/zilliztech/akcio/wiki) |
-[Contact](https://zilliz.com/contact-sales) |
-[LICENSE](./LICENSE)
+The Lagrange Q&A Chatbot is a specialized version of the Akcio assistant that focuses on providing accurate answers to user questions using predefined documentation chunks. Unlike a general-purpose AI, this chatbot operates within a well-defined scope and leverages existing information to respond to inquiries.
+## Features
 
-Index
-
-- [Overview](#overview)
-- [Deployment](#deployment)
-- [Load Data](#load-data)
-- [Notice](#notice)
-
-ChatGPT has constraints due to its limited knowledge base, sometimes resulting in hallucinating answers when asked about unfamiliar topics. We are introducing the new AI stack, ChatGPT+Vector database+prompt-as-code, or the CVP Stack, to overcome this constraint.
-
-We have built [OSSChat](https://osschat.io) as a working demonstration of the CVP stack. Now we are presenting the technology behind OSSChat in this repository with a code name of Akcio.
-
-<!-- OSSChat -->
-<table>
-  <tr>
-    <td width="40%">
-        <img src="./pics/osschat.png" />
-    </td>
-    <td width="40%">
-<img src="https://github.com/towhee-io/data/raw/main/akcio/osschat.gif" />
-    </td>
-  </tr>
-</table>
-
-With this project, you are able to build a knowledge-enhanced ChatBot using LLM service like ChatGPT. 
-By the end, you will learn how to start a backend service using FastAPI, which provides standby APIs to support further applications. Alternatively, we show how to use Gradio to [build an online demo](https://github.com/zilliztech/akcio/wiki/Demo).
-
-## Overview
-
-<p align="center" width="100%">
-    <img width="60%" src="./pics/architecture.png">
-</p>
-
-Akcio allows you to create a ChatGPT-like system with added intelligence obtained through semantic search of customized knowledge base.
-Instead of sending the user query directly to LLM service, our system firstly retrieves relevant information from stores by semantic search or keyword match. Then it feeds both user needs and helpful information into LLM. This allows LLM to better tailor its response to the user's needs and provide more accurate and helpful information.
-
-You can find more details and instructions at our [documentation](https://github.com/zilliztech/akcio/wiki).
-
-Akcio offers two AI platforms to choose from: [Towhee](https://towhee.io) or [LangChain](https://langchain.com).
-It also supports different integrations of LLM service and databases:
-
-|                         |              | **Towhee** | **LangChain** |
-|:-----------------------:|:------------:|:------:|:-----:|
-| **LLM**                 | OpenAI       | ✓      | ✓     |
-|                         | Llama-2      | ✓      |       |
-|                         | Dolly        | ✓      | ✓     |
-|                         | Ernie        | ✓      | ✓     |
-|                         | MiniMax      | ✓      | ✓     |
-|                         | DashScope    | ✓      |       |
-|                         | ChatGLM      | ✓      |       |
-|                         | SkyChat      | ✓      |       |
-| **Embedding**           | OpenAI       | ✓      | ✓     |
-|                         | HuggingFace  | ✓      | ✓     |
-| **Vector Store**        | Zilliz Cloud | ✓      | ✓     |
-|                         | Milvus       | ✓      | ✓     |
-| **Scalar Store (Optional)** | Elastic  | ✓      | ✓     |
-| **Memory Store**        | Postgresql   | ✓      | ✓     |
-|                         | MySQL and MariaDB     | ✓     |       |
-|                         | SQLite       | ✓      |       |
-|                         | Oracle       | ✓      |       |
-|                         | Microsoft SQL Server  | ✓     |       |
-| **Rerank**              | MS MARCO Cross-Encoders | ✓ | |
-
-### Option 1: Towhee
-
-The option using Towhee simplifies the process of building a system by providing [pre-defined pipelines](https://towhee.io/tasks/pipeline). These built-in pipelines require less coding and make system building much easier. If you require customization, you can either simply modify configuration or create your own pipeline with rich options of [Towhee Operators](https://towhee.io/tasks/operator).
-
-- [Pipelines](./src_towhee/pipelines)
-    - **Insert:**
-        The insert pipeline builds a knowledge base by saving documents and corresponding data in database(s).
-    - **Search:**
-        The search pipeline enables the question-answering capability powered by information retrieval (semantic search and optional keyword match) and LLM service.
-    - **Prompt:** a prompt operator prepares messages for LLM by assembling system message, chat history, and the user's query processed by template.
-
-- [Memory](./src_towhee/memory):
-    The memory storage stores chat history to support context in conversation. (available: [most SQL](./src_towhee/memory/sql.py))
-
-
-### Option 2: LangChain
-
-The option using LangChain employs the use of [Agent](https://python.langchain.com/docs/modules/agents) in order to enable LLM to utilize specific tools, resulting in a greater demand for LLM's ability to comprehend tasks and make informed decisions.
-
-- [Agent](./src_langchain/agent)
-    - **ChatAgent:** agent ensembles all modules together to build up qa system.
-    - Other agents (todo)
-- [LLM](./src_langchain/llm)
-    - **ChatLLM:** large language model or service to generate answers.
-- [Embedding](./src_langchain/embedding/)
-    - **TextEncoder:** encoder converts each text input to a vector.
-    - Other encoders (todo)
-- [Store](./src_langchain/store)
-    - **VectorStore:** vector database stores document chunks in embeddings, and performs document retrieval via semantic search.
-    - **ScalarStore:** optional, database stores metadata for each document chunk, which supports additional information retrieval. (available: [Elastic](src_langchain/store/scalar_store/es.py))
-    - **MemoryStore:** memory storage stores chat history to support context in conversation.
-- [DataLoader](./src_langchain/data_loader/)
-    - **DataParser:** tool loads data from given source and then splits documents into processed doc chunks.
+- Precision: The chatbot's responses are derived exclusively from predefined documentation chunks, ensuring that the information provided is accurate and aligned with the available knowledge.
+- Limited Scope: The chatbot refrains from generating new responses or engaging in creative discussions. Instead, it concentrates on answering questions based on the provided documentation.
+- User Interaction: Users can interact with the chatbot by sending questions. The chatbot searches its database of documentation chunks to offer relevant and informative responses.
+- Open Source: The Lagrange Q&A Chatbot is an open-source project, enabling transparency and collaboration among developers.
 
 ## Deployment
 
 1. Downloads
     ```shell
-    $ git clone https://github.com/zilliztech/akcio.git
-    $ cd akcio
+    $ git clone https://github.com/lydacious/lagbot_qa/
+    $ cd lagbot_qa
     ```
 
 2. Install dependencies
